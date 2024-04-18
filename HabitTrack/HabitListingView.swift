@@ -8,29 +8,23 @@
 import SwiftData
 import SwiftUI
 
-struct DestinationListingView: View {
+struct HabitListingView: View {
     @Environment(\.modelContext) var modelContext
-    @Query var destinations: [Destination]
-    
-    
+    @Query var habits: [Habit]
 
     var body: some View {
         List {
-            ForEach(destinations) { destination in
-                NavigationLink(value: destination) {
+            ForEach(habits) { habit in
+                NavigationLink(value: habit) {
                     VStack(alignment: .leading) {
-                        Text(destination.name)
-                        Text("\(destination.score)")
+                        Text(habit.name)
+                        Text("\(habit.score)")
                             .font(.headline)
-                            
-                        
-
-//                        Text(destination.score)
                     }
                 }
             }
             
-            .onDelete(perform: deleteDestinations)
+            .onDelete(perform: deleteHabits)
             .listRowBackground(
                                     RoundedRectangle(cornerRadius: 8)
                                         .background(.clear)
@@ -54,10 +48,10 @@ struct DestinationListingView: View {
     }
 
 
-    func deleteDestinations(_ indexSet: IndexSet) {
+    func deleteHabits(_ indexSet: IndexSet) {
         for index in indexSet {
-            let destination = destinations[index]
-            modelContext.delete(destination)
+            let habit = habits[index]
+            modelContext.delete(habit)
         }
     }
     struct ConfettiView: View {
@@ -129,5 +123,5 @@ struct DestinationListingView: View {
 }
 
 #Preview {
-    DestinationListingView()
+    HabitListingView()
 }

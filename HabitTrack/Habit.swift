@@ -8,7 +8,7 @@ import Foundation
 import SwiftData
 
 @Model
-class Destination {
+class Habit {
     var name: String
     var details: String
     var score: Int
