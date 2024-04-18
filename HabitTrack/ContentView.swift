@@ -10,6 +10,7 @@ import SwiftUI
 
 struct ContentView: View {
     @Environment(\.modelContext) var modelContext
+    @Environment(\.colorScheme) var colorScheme
 
     @State private var path = [Habit]()
     @State private var sortOrder = SortDescriptor(\Habit.name)
@@ -20,12 +21,12 @@ struct ContentView: View {
             HabitListingView()
                 .navigationTitle("Habit Track")
                 .navigationDestination(for: Habit.self, destination: EditHabitView.init)
-                .searchable(text: $searchText)
+                //.searchable(text: $searchText)
                 .toolbar {
                     ToolbarItem(placement: .navigationBarTrailing) {
                         Button(action: addHabit) {
                             Image(systemName: "plus")
-                                .foregroundColor(.black)
+                                .foregroundColor(colorScheme == .dark ? .white : .black)
                         }
                     }
                 }
