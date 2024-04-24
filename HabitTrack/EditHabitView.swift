@@ -8,13 +8,12 @@
 import SwiftUI
 import SwiftData
 
-import SwiftUI
-
 struct EditHabitView: View {
     @Bindable var habit: Habit
     @State private var isAnimatingConfetti = false
-    @State private var isButtonVisible = true
-    @State private var formOpacity = 0.0
+    @Environment(\.modelContext) var modelContext
+    @State private var showAlert = false
+    
 
     var body: some View {
         NavigationView {
@@ -22,77 +21,100 @@ struct EditHabitView: View {
                 Form {
                     Spacer()
                         .listRowBackground(Color.clear)
-                    Section(header: Text("Title")) {
+                    Section{
                         TextField("Name", text: $habit.name)
-                            .listRowBackground(Color.white.opacity(0.4))
+                            .listRowBackground(Color.white)
                     }
-                    Section(header: Text("Details")) {
+                    Section{
                         TextField("Details", text: $habit.details, axis: .vertical)
-                            .listRowBackground(Color.white.opacity(0.4))
+                            .listRowBackground(Color.white)
                     }
-                }
-                .opacity(formOpacity)
-                .onAppear {
-                    withAnimation(.easeIn(duration: 1.0)) {
-                        formOpacity = 1.0
-                    }
+                    Section{
+                        Picker("Color", selection: $habit.color) {
+                        Text("Red").tag(0)
+                        Text("Blue").tag(1)
+                        Text("Green").tag(2)
+                        Text("Yellow").tag(3)
+                        }
+                        .pickerStyle(.menu)
+                        .listRowBackground(Color.white)
+                      }
+
                 }
                 .scrollContentBackground(.hidden)
-                .background(.linearGradient(colors: [.green, .blue], startPoint: .top, endPoint: .bottom))
-
-                HStack {
-                    Text("Score:  \(habit.score)")
-                        .font(.largeTitle)
-                        .padding()
-                        .opacity(formOpacity)
-                        .onAppear {
-                            withAnimation(.easeIn(duration: 1.0)) {
-                                formOpacity = 1.0
+                .background(Image("DotBack").resizable().edgesIgnoringSafeArea(.all))
+                
+                VStack {
+                    Spacer()
+                        .frame(height: 10)
+                    HStack {
+                        Text("Score:  \(habit.score)")
+                            .font(.largeTitle)
+                            .foregroundStyle(.white)
+                            .padding()
+                        
+                        Button(action: {
+                            habit.score += 1
+                            self.isAnimatingConfetti = true
+                            DispatchQueue.main.asyncAfter(deadline: .now() + 2) {
+                                self.isAnimatingConfetti = false
                             }
+                        }) {Image(systemName: "plus.circle.fill")
+                                .resizable()
+                                .frame(width: 60, height: 60)
+                                .foregroundColor(Color(red: 198.0 / 255.0, green: 255.0 / 255.0, blue: 0.0 / 255.0))
+                            
                         }
-                    Button(action: {
-                        habit.score += 1
-                        self.isAnimatingConfetti = true
-                        DispatchQueue.main.asyncAfter(deadline: .now() + 2) {
-                            self.isAnimatingConfetti = false
+                        
+                        
+                        Button(action: {
+                            
+                            habit.score -= 1
+                            
+                        }) {
+                            Image(systemName: "minus.circle.fill")
+                                .resizable()
+                                .frame(width: 60, height: 60)
+                                .foregroundColor(Color(red: 250.0 / 255.0, green: 24.0 / 255.0, blue: 68.0 / 255.0))
+                                .padding()
+                            
+                                .cornerRadius(7)
                         }
-                    }) {Image(systemName: "plus.circle.fill")
-                            .resizable()
-                            .frame(width: 60, height: 60)
-                            .foregroundColor(Color.white.opacity(0.4))
+                        
                         
                     }
-                    .opacity(formOpacity)
-                    .onAppear {
-                        withAnimation(.easeIn(duration: 1.0)) {
-                            formOpacity = 1.0
-                        }
-                    }
+                }
+                VStack {
+                    Spacer()
 
                     Button(action: {
-                        withAnimation(Animation.easeInOut(duration: 1.5)) {
-                            habit.score -= 1
-                            isButtonVisible = false
-                        } completion: {
-                            isButtonVisible = true
-                        }
+                        modelContext.delete(habit)
+                        showAlert = true
                     }) {
-                        Image(systemName: "minus.circle.fill")
-                            .resizable()
-                            .frame(width: 60, height: 60)
-                            .foregroundColor(isButtonVisible ? Color.white.opacity(0.4) : Color.red.opacity(1.0))
-                            .padding()
-                            
-                            .cornerRadius(7)
+                        Text("Delete")
+                            .foregroundColor(.black)
+                            .bold()
+                            .padding(EdgeInsets(top: 10, leading: 20, bottom: 10, trailing: 20)) // Adjusted padding
+                            .background(Color(red: 250.0 / 255.0, green: 24.0 / 255.0, blue: 68.0 / 255.0))
+                            .cornerRadius(15) // Adjusted corner radius
                     }
-                    .opacity(isButtonVisible ? 1.0 : 0.0)
-                    .opacity(formOpacity)
-                    .onAppear {
-                        withAnimation(.easeIn(duration: 1.0)) {
-                            formOpacity = 1.0
-                        }
+
+                    .padding()
+                    
+                        
+                          
                     }
-                }
+                .alert(isPresented: $showAlert) {
+                                    Alert(title: Text("Deleted"),
+                                          message: Text("Your habit has been deleted."),
+                                          dismissButton: .default(Text("Ok")){
+                                        
+                                        
+                                    })
+                                }
+                                
+                
+                
                 
                 if isAnimatingConfetti {
                     ConfettiAnimation()

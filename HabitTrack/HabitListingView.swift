@@ -11,49 +11,91 @@ import SwiftUI
 struct HabitListingView: View {
     @Environment(\.modelContext) var modelContext
     @Query var habits: [Habit]
+    let columns: [GridItem] = [
+    GridItem(.flexible()),
+    GridItem(.flexible()) ]
+
 
     var body: some View {
-        List {
+        
+        ScrollView {
+            
+        LazyVGrid(columns: columns, spacing: 20) {
             ForEach(habits) { habit in
                 NavigationLink(value: habit) {
                     VStack(alignment: .leading) {
-                        Text(habit.name)
-                        Text("\(habit.score)")
-                            .font(.headline)
+                        ZStack {
+                            Rectangle()
+                                .fill({
+                                        switch habit.color {
+                                        case 0://RED
+                                            return Color(red: 250.0 / 255.0, green: 24.0 / 255.0, blue: 68.0 / 255.0)
+                                        case 1://BLUE
+                                            return Color(red: 61.0 / 255.0, green: 90.0 / 255.0, blue: 254.0 / 255.0)
+                                        case 2://GREEN
+                                            return Color(red: 198.0 / 255.0, green: 255.0 / 255.0, blue: 0.0 / 255.0)
+                                        case 3://YELLOW
+                                            return Color.yellow
+                                        default:
+                                            return Color(red: 250.0 / 255.0, green: 24.0 / 255.0, blue: 68.0 / 255.0)
+                                        }
+                                    }())
+                                .cornerRadius(20.0)
+                                .frame(width: 170, height: 190)
+                                .swipeActions {
+                                            Button("Delete", systemImage: "trash", role: .destructive) {
+                                                modelContext.delete(habit)
+                                            }
+                                        }
+                            
+                            ZStack {
+                                //CIRCLE 1
+                                Circle().stroke( // 1
+                                    Color.black.opacity(0.5),
+                                    lineWidth: 12
+                                                )
+                                    .frame(width: 130, height: 130)
+                                
+                                //CIRCLE 2
+                                Circle()
+                                    .trim(from: 0, to: CGFloat(habit.score)/100)
+                                    .stroke( // 1
+                                    Color.black, style: StrokeStyle(
+                                        lineWidth: 12,
+                                        lineCap: .round
+                                    )
+                                    
+                                                )
+                                    .frame(width: 130, height: 130)
+                                    .rotationEffect(.degrees(-90))
+
+                                VStack{
+                                    Text("\(habit.score)")
+                                    .font(.system(size: 46))
+                                        .foregroundStyle(.black)
+                                        .bold()
+                                        .padding(52)
+                                    Text(habit.name)
+                                        .font(.system(size: 16))
+                                        .bold()
+                                        .foregroundStyle(.black)
+                                }
+                            }
+                        }
                     }
                 }
             }
+        }
+        .padding()
+
             
-            .onDelete(perform: deleteHabits)
-            .listRowBackground(
-                                    RoundedRectangle(cornerRadius: 8)
-                                        .background(.clear)
-                                        .foregroundColor(.white)
-                                        .opacity(0.4)
-                                        .padding(
-                                            EdgeInsets(
-                                                top: 8,
-                                                leading: 10,
-                                                bottom: 2,
-                                                trailing: 10
-                                            )
-                                        )
-                                )
-                                .listRowSeparator(.hidden)
         }
-        
+
         .scrollContentBackground(.hidden)
-                    .background(.linearGradient(colors: [.blue, .green], startPoint: .top, endPoint: .bottom))
+        .background(Image("DotBack").resizable().edgesIgnoringSafeArea(.all))
         
     }
 
-
-    func deleteHabits(_ indexSet: IndexSet) {
-        for index in indexSet {
-            let habit = habits[index]
-            modelContext.delete(habit)
-        }
-    }
     struct ConfettiView: View {
         @State private var particles: [ConfettiParticle] = []
         

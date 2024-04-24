@@ -19,15 +19,21 @@ struct ContentView: View {
     var body: some View {
         NavigationStack(path: $path) {
             HabitListingView()
-                .navigationTitle("Habit Track")
-                .navigationDestination(for: Habit.self, destination: EditHabitView.init)
-                //.searchable(text: $searchText)
+                .navigationDestination(for: Habit.self) { habit in
+                                    EditHabitView(habit: habit)
+                                }
                 .toolbar {
                     ToolbarItem(placement: .navigationBarTrailing) {
                         Button(action: addHabit) {
-                            Image(systemName: "plus")
-                                .foregroundColor(colorScheme == .dark ? .white : .black)
+                            Image(systemName: "plus.circle.fill")
+                                .foregroundColor(.white)
+                                .font(.largeTitle)
                         }
+                    }
+                    ToolbarItem(placement: .navigationBarLeading) {
+                     Text("Active Habits")
+                            .foregroundStyle(.white)
+                            .font(.largeTitle)
                     }
                 }
         }
@@ -38,6 +44,7 @@ struct ContentView: View {
         modelContext.insert(habit)
         path = [habit]
     }
+    
 }
 
 #Preview {
